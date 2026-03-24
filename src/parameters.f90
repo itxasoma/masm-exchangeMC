@@ -4,7 +4,9 @@ module GLOBAL
   integer(kind=8):: nMCS, nmeas 
   double precision:: Tmin, Tmax 
   double precision, allocatable:: temp_list(:), beta_list(:) 
- character(len=64):: bond_mode ! Nearest or all
+  character(len=64):: bond_mode ! Nearest or all
+  character(len=32):: temp_mode ! Linear spacing or other for temps
+  character(len=200):: temp_file  ! File with list of temps
 contains
 
 ! Read input parameters from a file
@@ -23,7 +25,22 @@ contains
     read(10,*) seed                 ! rng seed
     read(10,'(A)') bond_mode        ! bond type: gaussian or ferro
     close(10) 
-   bond_mode = adjustl(trim(bond_mode)) 
+    bond_mode = adjustl(trim(bond_mode)) 
+
+    ! VS copilot suggestion: read temp_mode, if not given, keep default 'linear'
+    temp_mode = 'linear'
+    temp_file = ''
+
+    read(10,'(A)', iostat=ios) temp_mode 
+    if (ios == 0) then
+      temp_mode = adjustl(trim(temp_mode))
+      if (trim(temp_mode) == 'file') then
+        read(10,'(A)', iostat=ios) temp_file
+        if (ios /= 0) stop 'temp_mode=file but no temperature file given'
+        temp_file = adjustl(trim(temp_file))
+      endif
+    endif
+
   end subroutine read_input
 
 ! Initialize global variables and allocate T, beta lists
@@ -42,20 +59,29 @@ contains
 
     ! The arrays' dimensions are NT: number of replicas.
     ! Tk are linearly spaced between Tmin and Tmax.
-    allocate(temp_list(NT), beta_list(NT)) 
-    if (NT == 1) then 
-      temp_list(1) = Tmin 
-    else 
-      do k = 1, NT 
-        temp_list(k) = Tmin + (Tmax - Tmin)*dble(k-1)/dble(NT-1) 
-      enddo 
-    endif 
-    do k = 1, NT 
-      beta_list(k) = 1.d0/temp_list(k) 
-    enddo 
+    if (allocated(temp_list)) deallocate(temp_list)
+    if (allocated(beta_list)) deallocate(beta_list)
+    allocate(temp_list(NT), beta_list(NT))
 
+    if (trim(temp_mode) == 'file') then
+      call read_temperature_file(trim(temp_file))
+    else
+      if (NT == 1) then
+        temp_list(1) = Tmin
+      else
+        do k = 1, NT
+          temp_list(k) = Tmin + (Tmax - Tmin) * dble(k-1) / dble(NT-1)
+        enddo
+      endif
+    endif
+
+    do k = 1, NT
+      beta_list(k) = 1.d0 / temp_list(k)
+    enddo
+
+    print*, 'N=', N
+    print*, 'z=', z
     print*, 'temp_list=', temp_list
-    print*, 'beta_list=', beta_list
 
   end subroutine init_globals 
 
