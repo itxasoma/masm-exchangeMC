@@ -2,6 +2,7 @@ FC = gfortran
 FFLAGS = -O2 -g -Wall -Wextra -fcheck=all -fbacktrace
 CPPFLAGS = -I./r1279
 TARGET = exchange_mc
+PYTHON = python3
 
 OBJ = parameters.o lattice.o rng_wrapper.o bonds.o exchangeMC.o main.o r1279.o ran2.o
 
@@ -36,6 +37,17 @@ r1279.o: r1279/r1279.f90
 
 run: $(TARGET)
 	./$(TARGET) ../inputs/part1.in
+	mv *.dat ../results/
+
+run2: $(TARGET)
+	./$(TARGET) ../inputs/part2.in
+	mv *.dat ../results/
+
+figures:
+	mkdir -p ../results ../figures
+	python3 plots.py
 
 clean:
-	rm -f *.o *.mod $(TARGET)
+	rm -f *.o *.mod $(TARGET) 
+
+

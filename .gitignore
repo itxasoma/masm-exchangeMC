@@ -2,3 +2,5 @@
 .DS_Store
 *.mod
 *.o
+*.x
+fort*

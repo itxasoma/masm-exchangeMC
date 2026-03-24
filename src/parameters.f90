@@ -1,6 +1,6 @@
 module GLOBAL 
   implicit none 
-  integer:: d, L, N, z, NT, nsw, seed 
+  integer:: d, L, N, z, NT, nsw, seed, ios 
   integer(kind=8):: nMCS, nmeas 
   double precision:: Tmin, Tmax 
   double precision, allocatable:: temp_list(:), beta_list(:) 
@@ -84,5 +84,16 @@ contains
     print*, 'temp_list=', temp_list
 
   end subroutine init_globals 
+  
+  subroutine read_temperature_file(filename)
+    implicit none
+    character(*), intent(in):: filename
+    integer:: k
+    open(11, file=trim(filename), status='old')
+    do k = 1, NT
+      read(11,*) temp_list(k)
+    enddo
+    close(11)
+  end subroutine read_temperature_file
 
 end module GLOBAL 
