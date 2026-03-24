@@ -15,15 +15,15 @@ The simulation runs two independent replica families, usually labeled $a$ and $b
 ├── src/
 │   ├── rng_module.f90           # Random number generator interface
 │   ├── parameters.f90           # Global parameters and inputs
-│   ├── lattice_module.f90       # Lattice geometry and periodic boundary conditions
-│   ├── bonds_module.f90         # Quenched couplings Jij (Gaussian or Jij = 1 test mode)
-│   ├── energy_module.f90        # Energy, local field, and ΔE routines
-│   ├── metropolis_module.f90    # Single-temperature Metropolis sweeps
-│   ├── tempering_module.f90     # Replica exchange / temperature swap moves
-│   ├── observables_module.f90   # Q, q, q^2, energy, acceptance statistics
-│   ├── binning_module.f90       # Binning analysis for statistical errors
-│   ├── io_module.f90            # Output files and logging
-│   ├── main_pt.f90              # Main program: Parallel Tempering simulation
+│   ├── lattice.f90              # Lattice geometry and periodic boundary conditions
+│   ├── bonds.f90                # Quenched couplings Jij (Gaussian or Jij = 1 test mode)
+│   ├── energy.f90               # Energy, local field, and ΔE routines
+│   ├── metropolis.f90           # Single-temperature Metropolis sweeps
+│   ├── tempering.f90            # Replica exchange / temperature swap moves
+│   ├── observables.f90          # Q, q, q^2, energy, acceptance statistics
+│   ├── binning.f90              # Binning analysis for statistical errors
+│   ├── io.f90                   # Output files and logging
+│   ├── main.f90                 # Main program: Parallel Tempering simulation
 │   ├── plots.ipynb              # Analysis and plots
 │   └── Makefile
 ├── inputs/
