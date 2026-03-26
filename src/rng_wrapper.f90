@@ -1,4 +1,5 @@
 ! To call the external RNG functions cleanly
+! Suggested by co-pilot to avoid having to use the module in every file that needs RNG
 module rng_wrapper
   implicit none
   interface

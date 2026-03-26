@@ -93,12 +93,12 @@ contains
     integer:: k
     do k = 1, NT
       rep_at_temp(k) = k ! Which replica is currently sitting at temperature slot k?
-      temp_of_rep(k) = k ! Which temperature is replica k currently at?
+      temp_of_rep(k) = k ! At which temperature slot is replica r currently sitting?
     enddo
   end subroutine init_maps
 
 
-! Attempt exchanges between neighboring replicas in the family.
+! Attempt exchanges between neighboring replicas (k, k+1) in the family.
 ! Update the maps and acceptance statsics for each pair of neighboring temperatures.
   subroutine attempt_exchange_family(Erep, rep_at_temp, temp_of_rep, parity, acc, att)
     implicit none
@@ -109,14 +109,18 @@ contains
     integer:: k, r1, r2, t1, t2, tmprep
     double precision:: expo
 
-    do k = parity, NT - 1, 2
+    ! Assignment’s requirement to alternate even and odd neighboring pairs
+    do k = parity, NT - 1, 2 ! Attempts between pairs (1,2), (3,4), or (2,3), (4,5), etc
       r1 = rep_at_temp(k)
       r2 = rep_at_temp(k+1)
 
       t1 = temp_of_rep(r1)
       t2 = temp_of_rep(r2)
 
+      ! a = min(1, exp((beta(t1) - beta(t2)) * (Erep(r1) - Erep(r2))))
       expo = (beta_list(t1) - beta_list(t2)) * (Erep(r1) - Erep(r2))
+
+      ! attempt counter
       att(k) = att(k) + 1_8
 
       if (expo >= 0.d0) then
@@ -126,6 +130,7 @@ contains
         temp_of_rep(r1) = t2
         temp_of_rep(r2) = t1
         acc(k) = acc(k) + 1_8
+
       else if (dble(r1279()) < exp(expo)) then
         tmprep = rep_at_temp(k)
         rep_at_temp(k) = rep_at_temp(k+1)
@@ -133,10 +138,12 @@ contains
         temp_of_rep(r1) = t2
         temp_of_rep(r2) = t1
         acc(k) = acc(k) + 1_8
-      end if
-    end do
+      endif
+
+    enddo
   end subroutine attempt_exchange_family
 
+! Measure overlap Q(k) and average energy E(k) by temperature slot k
   subroutine measure_all(mcs, unit_ts, spinsA, spinsB, EA, EB, repA, repB)
     implicit none
     integer(kind=8), intent(in):: mcs
@@ -159,6 +166,8 @@ contains
     end do
   end subroutine measure_all
 
+! A safe way to compute acceptance rates without risking division by zero
+! Suggested by co-pilot
   double precision function safe_rate(acc, att)
     implicit none
     integer(kind=8), intent(in):: acc, att
@@ -169,6 +178,7 @@ contains
     end if
   end function safe_rate
 
+! Write all the statistics about swap attempts
   subroutine write_swap_stats(filename, accA, attA, accB, attB)
     implicit none
     character(*), intent(in) :: filename
