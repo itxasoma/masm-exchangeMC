@@ -15,7 +15,7 @@ BASE_DIR = os.path.dirname(__file__)
 RESULTS_DIR = os.path.join(BASE_DIR, '../results')
 FIG_DIR = os.path.join(BASE_DIR, '../figures')
 
-style_file = os.path.join(BASE_DIR, 'science.mplstyle')
+style_file = os.path.join(BASE_DIR, 'lib/science.mplstyle')
 if os.path.exists(style_file):
     plt.style.use(style_file)
 

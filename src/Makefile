@@ -48,6 +48,6 @@ figures:
 	python3 plots.py
 
 clean:
-	rm -f *.o *.mod $(TARGET) 
+	rm -f *.o *.mod $(TARGET) *.x fort.*
 
 

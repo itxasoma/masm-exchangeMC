@@ -59,7 +59,7 @@ contains
     do attempt = 1, N
       ispin = min(N, int(dble(N) * dble(r1279())) + 1)
       dE = delta_energy(spin, ispin)
-
+      ! Metropolis: 
       if (dE <= 0.d0) then
         spin(ispin) = -spin(ispin)
         E = E + dE
@@ -67,9 +67,11 @@ contains
         spin(ispin) = -spin(ispin)
         E = E + dE
       endif
+
     enddo
   end subroutine metropolis_sweep
 
+! Initialize the family of replicas with random spins and compute their energies
   subroutine init_family(spins, Erep)
     implicit none
     integer, intent(out):: spins(N,NT)
@@ -81,16 +83,23 @@ contains
     enddo
   end subroutine init_family
 
+! Initialize with replica r at temperature r
+! It sets up the initial correspondence between replicas and temperature slots. 
+! At the very beginning, nothing has been exchanged yet, so replica 1 is at temperature 1,
+! replica 2 is at temperature 2, and so on.
   subroutine init_maps(rep_at_temp, temp_of_rep)
     implicit none
     integer, intent(out):: rep_at_temp(NT), temp_of_rep(NT)
     integer:: k
     do k = 1, NT
-      rep_at_temp(k) = k
-      temp_of_rep(k) = k
-    end do
+      rep_at_temp(k) = k ! Which replica is currently sitting at temperature slot k?
+      temp_of_rep(k) = k ! Which temperature is replica k currently at?
+    enddo
   end subroutine init_maps
 
+
+! Attempt exchanges between neighboring replicas in the family.
+! Update the maps and acceptance statsics for each pair of neighboring temperatures.
   subroutine attempt_exchange_family(Erep, rep_at_temp, temp_of_rep, parity, acc, att)
     implicit none
     double precision, intent(in):: Erep(NT)
