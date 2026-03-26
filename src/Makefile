@@ -51,3 +51,16 @@ clean:
 	rm -f *.o *.mod $(TARGET) *.x fort.*
 
 
+BIN_TARGET = main_binning.x
+
+binning.o: binning.f90
+	$(FC) $(FFLAGS) -c $<
+
+main_binning.o: main_binning.f90 binning.o
+	$(FC) $(FFLAGS) -c $<
+
+$(BIN_TARGET): binning.o main_binning.o
+	$(FC) $(FFLAGS) -o $@ $^
+
+binning: $(BIN_TARGET)
+	./$(BIN_TARGET)
