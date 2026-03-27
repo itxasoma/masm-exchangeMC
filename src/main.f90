@@ -13,10 +13,17 @@ program main
   integer(kind=8), allocatable:: accA(:), attA(:), accB(:), attB(:)
   double precision, allocatable:: EA(:), EB(:)
   character(len=200):: inputfile, tsfile, swfile, tag
+  ! Check post-transient swaps
+  integer:: k
+  integer(kind=8):: mcs_therm
+  integer(kind=8), allocatable:: accA_eq(:), attA_eq(:), accB_eq(:), attB_eq(:)
+  integer(kind=8), allocatable:: accA_old(:), attA_old(:), accB_old(:), attB_old(:)
+  double precision:: rateA, rateB
+  logical:: ok_all
 
   inputfile = '../inputs/part1.in'
   ! Suggested by co-pilot to allow input file as a command line argument
-  call get_command_argument(1, inputfile) 
+  call get_command_argument(1, inputfile)
 
   ! Extracts a short name from the input filename
   call make_tag_from_input(trim(inputfile), tag)
@@ -37,11 +44,18 @@ program main
   allocate(EA(NT), EB(NT))
   allocate(repA(NT), repB(NT), tempA(NT), tempB(NT))
   allocate(accA(NT-1), attA(NT-1), accB(NT-1), attB(NT-1))
+  ! And post-transient swap statistics
+  allocate(accA_eq(NT-1), attA_eq(NT-1), accB_eq(NT-1), attB_eq(NT-1))
+  allocate(accA_old(NT-1), attA_old(NT-1), accB_old(NT-1), attB_old(NT-1))
 
   accA(:) = 0_8
   attA(:) = 0_8
   accB(:) = 0_8
   attB(:) = 0_8
+  accA_eq(:) = 0_8
+  attA_eq(:) = 0_8
+  accB_eq(:) = 0_8
+  attB_eq(:) = 0_8
 
   call init_family(spinsA, EA)
   call init_family(spinsB, EB)
@@ -58,6 +72,10 @@ program main
   ! This means the first exchange step will try pairs: (1,2), (3,4), (5,6), ...
   parity = 1
 
+  ! Measure the swap acceptance after 10% of the total MCS: 
+  mcs_therm = max(1000_8, nMCS / 10_8)
+  print *, 'Post-transient swap statistics will be measured after MCS =', mcs_therm
+
   do mcs = 1_8, nMCS ! One pass of this loop corresponds to one Monte Carlo step for the whole PT simulation
 
     ! Metropolis sweeps for each replica at its current temperature
@@ -68,8 +86,24 @@ program main
 
     ! Every nsw steps, attempt exchanges between neighboring replicas in the family
     if (mod(mcs, nsw) == 0_8) then
+
+      ! Save counters before the exchange step
+      accA_old = accA
+      attA_old = attA
+      accB_old = accB
+      attB_old = attB
+
       call attempt_exchange_family(EA, repA, tempA, parity, accA, attA)
       call attempt_exchange_family(EB, repB, tempB, parity, accB, attB)
+
+      ! Accumulate only post-transient swap statistics
+      if (mcs > mcs_therm) then
+        accA_eq = accA_eq + (accA - accA_old)
+        attA_eq = attA_eq + (attA - attA_old)
+        accB_eq = accB_eq + (accB - accB_old)
+        attB_eq = attB_eq + (attB - attB_old)
+      endif
+
       ! The parity is flipped, so the next swap step uses the opposite set of neighboring pairs
       if (parity == 1) then
         parity = 2
@@ -88,7 +122,34 @@ program main
   close(10)
   call write_swap_stats(swfile, accA, attA, accB, attB)
 
+  ! Print post-transient acceptance rates on screen
+  !print *
+  print *, 'Swap acceptance rates after transient:'
+  print *, ' pair      Tk          Tk+1        rateA       rateB'
+  ok_all = .true.
+
+  do k = 1, NT - 1
+    rateA = safe_rate(accA_eq(k), attA_eq(k))
+    rateB = safe_rate(accB_eq(k), attB_eq(k))
+
+    write(*,'(I4,2X,F10.5,2X,F10.5,2X,F8.4,2X,F8.4)') &
+         k, temp_list(k), temp_list(k+1), rateA, rateB
+
+    if (rateA < 0.3d0 .or. rateB < 0.3d0) ok_all = .false.
+  enddo
+
+  print *
+  if (ok_all) then
+    print *, 'OK: all post-transient swap acceptance rates are >= 0.3'
+  else
+    print *, 'WARNING: some post-transient swap acceptance rates are < 0.3'
+    print *, 'Try increasing NT'
+  endif
+
   deallocate(spinsA, spinsB, EA, EB, repA, repB, tempA, tempB, accA, attA, accB, attB)
+  deallocate(accA_eq, attA_eq, accB_eq, attB_eq)
+  deallocate(accA_old, attA_old, accB_old, attB_old)
+
   call dealloc_bonds()
   call dealloc_lattice()
 
