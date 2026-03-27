@@ -10,9 +10,12 @@ contains
     integer:: n_data, n_blocks, i, start_idx
     double precision, allocatable:: block_X(:)
 
+    ! Initialize variables
     n_data = size(X)
     n_blocks = n_data / block_size
 
+    !  Integer division of how many blocks we have
+    ! n_blocks = (n_data) / block_size
     if (n_blocks <= 1) then
       av_X = sum(X) / dble(n_data)
       sigma_X = 0.d0
@@ -20,12 +23,13 @@ contains
     end if
 
     allocate(block_X(n_blocks))
-
+    !  Compute each block average (for every data-block)
     do i = 1, n_blocks
       start_idx = 1 + (i-1) * block_size
       block_X(i) = sum(X(start_idx:start_idx + block_size - 1)) / dble(block_size)
     end do
-
+    
+    ! Average and error calculation
     av_X = sum(block_X) / dble(n_blocks)
     sigma_X = sqrt(max(0.d0, sum((block_X - av_X)**2) / dble(n_blocks * (n_blocks - 1))))
 

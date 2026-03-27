@@ -4,3 +4,6 @@
 *.o
 *.x
 fort*
+results/part3/
+logs/part3/
+inputs/part3_samples/
