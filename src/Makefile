@@ -43,9 +43,13 @@ run2: $(TARGET)
 	./$(TARGET) ../inputs/part2.in
 	mv *.dat ../results/
 
-figures:
+figures2:
 	mkdir -p ../results ../figures
-	python3 plots.py
+	python3 plots2.py
+
+figures3:
+	mkdir -p ../results ../figures
+	python3 plots3.py
 
 clean:
 	rm -f *.o *.mod $(TARGET) *.x fort.*

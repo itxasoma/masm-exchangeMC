@@ -71,6 +71,47 @@ def load_summary(filename):
     return T, mean_e, err_e
 
 
+def load_summary_from_binning(filename, min_blocks=16, rel_tol=0.05):
+    data = np.loadtxt(filename, comments='#')
+    temps = np.unique(data[:, 1])
+
+    T_out = []
+    mean_out = []
+    err_out = []
+
+    for temp in temps:
+        mask = np.abs(data[:, 1] - temp) < 1e-12
+        rows = data[mask]
+
+        nblocks = rows[:, 3]
+        mean_spin = rows[:, 5]
+        err_spin = rows[:, 7]
+
+        good = nblocks >= min_blocks
+        if np.any(good):
+            mean_spin = mean_spin[good]
+            err_spin = err_spin[good]
+        else:
+            mean_spin = rows[:, 5]
+            err_spin = rows[:, 7]
+
+        idx_plateau = len(err_spin) - 1
+
+        if len(err_spin) >= 3:
+            for i in range(1, len(err_spin) - 1):
+                r1 = abs(err_spin[i] - err_spin[i - 1]) / max(abs(err_spin[i]), 1e-16)
+                r2 = abs(err_spin[i + 1] - err_spin[i]) / max(abs(err_spin[i + 1]), 1e-16)
+                if r1 < rel_tol and r2 < rel_tol:
+                    idx_plateau = i
+                    break
+
+        T_out.append(temp)
+        mean_out.append(mean_spin[idx_plateau])
+        err_out.append(err_spin[idx_plateau])
+
+    return np.array(T_out), np.array(mean_out), np.array(err_out)
+
+
 def load_ferdi(filename):
     data = np.loadtxt(filename)
     T = data[:, 0]
@@ -88,7 +129,9 @@ def choose_plot_temps(temps, targets=(1.0, 2.2, 3.0)):
 
 
 def plot_energy_comparison():
-    if os.path.exists(SUMMARY_FILE):
+    if os.path.exists(BINNING_FILE):
+        Tmc, emc, d_emc = load_summary_from_binning(BINNING_FILE)
+    elif os.path.exists(SUMMARY_FILE):
         Tmc, emc, d_emc = load_summary(SUMMARY_FILE)
     else:
         Tmc, emc, d_emc = mc_energy_vs_T_raw(TS_FILE)
@@ -129,10 +172,9 @@ def plot_binning_curves():
         err_spin = data[mask, 7]
         plt.plot(block_size, err_spin, 'o-', label=f'T={temp:.2f}')
 
-    plt.xscale('log', base=2)
+    plt.xscale('log', base=2, subs=[1, 2, 4, 8, 16, 32])
     plt.xlabel('Block size')
     plt.ylabel('Binned error of energy per spin')
-    #plt.xscale('log')
     plt.title('Binning analysis')
     plt.grid(True, alpha=0.3)
     plt.legend()
