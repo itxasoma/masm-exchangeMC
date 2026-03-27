@@ -6,7 +6,6 @@
 
 # gfortran -O2 -o ferdinand.x ferdinand/ferdinand_matteo.f
 
-
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -23,6 +22,9 @@ os.makedirs(FIG_DIR, exist_ok=True)
 
 TS_FILE = os.path.join(RESULTS_DIR, 'timeseries_part2.dat')
 FERDI_FILE = os.path.join(RESULTS_DIR, 'ferdi.D')
+SUMMARY_FILE = os.path.join(RESULTS_DIR, 'summary_part2.dat')
+BINNING_FILE = os.path.join(RESULTS_DIR, 'binning_part2.dat')
+SWAP_FILE = os.path.join(RESULTS_DIR, 'swap_stats_part2.dat')
 
 L = 20
 N = L * L
@@ -34,16 +36,15 @@ def load_mc_data(filename):
     mcs = data[:, 0].astype(int)
     k = data[:, 1].astype(int)
     T = data[:, 2]
+    Q = data[:, 3]
     E = data[:, 4]
-    return mcs, k, T, E
+    return mcs, k, T, Q, E
 
 
-def mc_energy_vs_T(filename):
-    mcs, k, T, E = load_mc_data(filename)
+def mc_energy_vs_T_raw(filename):
+    mcs, k, T, Q, E = load_mc_data(filename)
 
     keep = mcs >= DISCARD_MCS
-    mcs = mcs[keep]
-    k = k[keep]
     T = T[keep]
     E = E[keep]
 
@@ -62,6 +63,14 @@ def mc_energy_vs_T(filename):
     return temps, np.array(mean_e), np.array(err_e)
 
 
+def load_summary(filename):
+    data = np.loadtxt(filename, comments='#')
+    T = data[:, 1]
+    mean_e = data[:, 4]
+    err_e = data[:, 6]
+    return T, mean_e, err_e
+
+
 def load_ferdi(filename):
     data = np.loadtxt(filename)
     T = data[:, 0]
@@ -69,8 +78,20 @@ def load_ferdi(filename):
     return T, e
 
 
+def choose_plot_temps(temps, targets=(1.0, 2.2, 3.0)):
+    chosen = []
+    for t in targets:
+        tsel = temps[np.argmin(np.abs(temps - t))]
+        if not any(abs(tsel - x) < 1e-12 for x in chosen):
+            chosen.append(tsel)
+    return np.array(chosen)
+
+
 def plot_energy_comparison():
-    Tmc, emc, d_emc = mc_energy_vs_T(TS_FILE)
+    if os.path.exists(SUMMARY_FILE):
+        Tmc, emc, d_emc = load_summary(SUMMARY_FILE)
+    else:
+        Tmc, emc, d_emc = mc_energy_vs_T_raw(TS_FILE)
 
     plt.figure()
     plt.errorbar(Tmc, emc, yerr=d_emc, fmt='o', capsize=3, label='Exchange MC')
@@ -93,7 +114,129 @@ def plot_energy_comparison():
     print(f'Generated {os.path.basename(out_file)}')
 
 
+def plot_binning_curves():
+    if not os.path.exists(BINNING_FILE):
+        return
+
+    data = np.loadtxt(BINNING_FILE, comments='#')
+    temps = np.unique(data[:, 1])
+    chosen = choose_plot_temps(temps)
+
+    plt.figure()
+    for temp in chosen:
+        mask = np.abs(data[:, 1] - temp) < 1e-12
+        block_size = data[mask, 2]
+        err_spin = data[mask, 7]
+        plt.plot(block_size, err_spin, 'o-', label=f'T={temp:.2f}')
+
+    plt.xscale('log', base=2)
+    plt.xlabel('Block size')
+    plt.ylabel('Binned error of energy per spin')
+    #plt.xscale('log')
+    plt.title('Binning analysis')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+
+    out_file = os.path.join(FIG_DIR, 'binning_energy_part2.pdf')
+    plt.savefig(out_file)
+    plt.close()
+    print(f'Generated {os.path.basename(out_file)}')
+
+
+def plot_energy_timeseries():
+    if not os.path.exists(TS_FILE):
+        return
+
+    mcs, k, T, Q, E = load_mc_data(TS_FILE)
+    keep = mcs >= DISCARD_MCS
+    mcs = mcs[keep]
+    T = T[keep]
+    E = E[keep]
+
+    temps = np.unique(T)
+    chosen = choose_plot_temps(temps)
+
+    plt.figure()
+    for temp in chosen:
+        mask = np.abs(T - temp) < 1e-12
+        plt.plot(mcs[mask], E[mask] / N, label=f'T={temp:.2f}', alpha=0.9)
+
+    plt.xlabel('MCS')
+    plt.ylabel('Energy per spin')
+    plt.title('Energy time series')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+
+    out_file = os.path.join(FIG_DIR, 'energy_timeseries_part2.pdf')
+    plt.savefig(out_file)
+    plt.close()
+    print(f'Generated {os.path.basename(out_file)}')
+
+
+def plot_overlap_timeseries():
+    if not os.path.exists(TS_FILE):
+        return
+
+    mcs, k, T, Q, E = load_mc_data(TS_FILE)
+    keep = mcs >= DISCARD_MCS
+    mcs = mcs[keep]
+    T = T[keep]
+    Q = Q[keep]
+
+    temps = np.unique(T)
+    chosen = choose_plot_temps(temps)
+
+    plt.figure()
+    for temp in chosen:
+        mask = np.abs(T - temp) < 1e-12
+        plt.plot(mcs[mask], Q[mask] / N, label=f'T={temp:.2f}', alpha=0.9)
+
+    plt.xlabel('MCS')
+    plt.ylabel('q = Q/N')
+    plt.title('Overlap time series')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+
+    out_file = os.path.join(FIG_DIR, 'overlap_timeseries_part2.pdf')
+    plt.savefig(out_file)
+    plt.close()
+    print(f'Generated {os.path.basename(out_file)}')
+
+
+def plot_swap_rates():
+    if not os.path.exists(SWAP_FILE):
+        return
+
+    data = np.loadtxt(SWAP_FILE, comments='#')
+    Tmid = 0.5 * (data[:, 1] + data[:, 2])
+    rateA = data[:, 5]
+    rateB = data[:, 8]
+
+    plt.figure()
+    plt.plot(Tmid, rateA, 'o-', label='Family A')
+    plt.plot(Tmid, rateB, 's-', label='Family B')
+    plt.axhline(0.3, color='k', ls='--', lw=1.0, alpha=0.7)
+    plt.xlabel('Pair midpoint temperature')
+    plt.ylabel('Swap acceptance rate')
+    plt.title('Parallel tempering swap rates')
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.tight_layout()
+
+    out_file = os.path.join(FIG_DIR, 'swap_rates_part2.pdf')
+    plt.savefig(out_file)
+    plt.close()
+    print(f'Generated {os.path.basename(out_file)}')
+
+
 if __name__ == '__main__':
     print('Generating plots...')
     plot_energy_comparison()
+    plot_binning_curves()
+    plot_energy_timeseries()
+    plot_overlap_timeseries()
+    plot_swap_rates()
     print('Done!')
