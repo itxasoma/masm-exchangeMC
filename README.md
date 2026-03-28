@@ -22,19 +22,26 @@ The simulation runs two independent replica families, usually labeled $a$ and $b
     ```bash
         make run
     ```
-    2.2. 2D Ising model simulation: run, binning and plots: 
+    2.2. 2D Ising model simulation: run, binning and plots:
+   
     To run localy, tune the nMCS in inputs/part2.in. Also run `ferdinand_matteo.f`for comparison
+   
        ```bash
         make run2
         make binning
         gfortran -O2 -o ferdinand.x ferdinand/ferdinand_matteo.f 
         make figures2
         ```
+   
     To run in the cluster (used pirineus3.csuc.cat):
+   
     ```sbatch 2.run.sh
     ```
+    
     2.3. 3D Ising model simulation
+   
     To run in the cluster (used pirineus3.csuc.cat):
+   
     ```sbatch 3.run.sh
     ```
 
