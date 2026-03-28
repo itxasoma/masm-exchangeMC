@@ -44,30 +44,67 @@ The simulation runs two independent replica families, usually labeled $a$ and $b
    
     ```sbatch 3.run.sh
     ```
+    inputs/part3_samples/ and logs/part3 will be created containing the simulation's inputs, as well as results/part3 with the swap statistics and timeseries files.
 
 
 ## Structure
 
 ```text
 .
-├── src/
-│   ├── rng_module.f90           # Random number generator interface
-│   ├── parameters.f90           # Global parameters and inputs
-│   ├── lattice.f90              # Lattice geometry and periodic boundary conditions
-│   ├── bonds.f90                # Quenched couplings Jij (Gaussian or Jij = 1 test mode)
-│   ├── energy.f90               # Energy, local field, and ΔE routines
-│   ├── metropolis.f90           # Single-temperature Metropolis sweeps
-│   ├── tempering.f90            # Replica exchange / temperature swap moves
-│   ├── observables.f90          # Q, q, q^2, energy, acceptance statistics
-│   ├── binning.f90              # Binning analysis for statistical errors
-│   ├── io.f90                   # Output files and logging
-│   ├── main.f90                 # Main program: Parallel Tempering simulation
-│   ├── plots.ipynb              # Analysis and plots
-│   └── Makefile
-├── inputs/
-│   ├── test_2d_ising.in         # Validation case: d = 2, Jij = 1
-│   ├── sg_3d_L4.in              # 3D spin glass, small-size production
-│   └── sg_3d_L8.in              # 3D spin glass, long equilibration run
-├── out/                         # Output files created at runtime
-├── plots/                       # Figures created from analysis scripts/notebooks
-└── README.md
+├── figures
+│   ├── binning_energy_part2.pdf
+│   ├── energy_timeseries_part2.pdf
+│   ├── energy_vs_temperature_part2.pdf
+│   ├── overlap_timeseries_part2.pdf
+│   ├── pq_hist_compare_T02_T05_part3.pdf
+│   ├── pq_hist_T0.2_part3.pdf
+│   ├── pq_hist_T0.2.dat
+│   ├── pq_hist_T0.5_part3.pdf
+│   ├── pq_hist_T0.5.dat
+│   └── swap_rates_part2.pdf
+├── inputs
+│   ├── part1.in
+│   ├── part2.in
+│   ├── part3.in
+│   └── temps.dat
+├── LICENSE
+├── README.md
+├── results
+│   ├── binning_part2.dat
+│   ├── ferdi.D
+│   ├── summary_part2.dat
+│   ├── swap_stats_part1.dat
+│   ├── swap_stats_part2.dat
+│   ├── swap_stats.dat
+│   ├── timeseries_exchMC.dat
+│   ├── timeseries_part1.dat
+│   └── timeseries_part2.dat
+├── src
+│   ├── 2.run.sh
+│   ├── 3.run.sh
+│   ├── binning.f90
+│   ├── bonds.f90
+│   ├── exchangeMC.f90
+│   ├── ferdinand
+│   │   ├── constants.par
+│   │   ├── ferdinand_matteo.f
+│   │   └── implicit.sta
+│   ├── lattice.f90
+│   ├── lib
+│   │   ├── requirements.txt
+│   │   └── science.mplstyle
+│   ├── main_binning.f90
+│   ├── main.f90
+│   ├── Makefile
+│   ├── parameters.f90
+│   ├── part2_2140025.err
+│   ├── part2_2140025.out
+│   ├── plots2.py
+│   ├── plots3.py
+│   ├── r1279
+│   │   ├── gauss.f
+│   │   ├── r1279.f90
+│   │   ├── r1279block.h
+│   │   └── ran2.f
+│   └── rng_wrapper.f90
+└──
