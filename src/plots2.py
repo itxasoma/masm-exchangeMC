@@ -28,7 +28,7 @@ SWAP_FILE = os.path.join(RESULTS_DIR, 'swap_stats_part2.dat')
 
 L = 20
 N = L * L
-DISCARD_MCS = 1000
+DISCARD_MCS = 10000
 
 
 def load_mc_data(filename):
@@ -199,16 +199,24 @@ def plot_energy_timeseries():
     temps = np.unique(T)
     chosen = choose_plot_temps(temps)
 
+    stride = 100
+
     plt.figure()
     for temp in chosen:
         mask = np.abs(T - temp) < 1e-12
-        plt.plot(mcs[mask], E[mask] / N, label=f'T={temp:.2f}', alpha=0.9)
+        plt.plot(
+            mcs[mask][::stride],
+            (E[mask] / N)[::stride],
+            label=f'T={temp:.2f}',
+            alpha=0.9,
+            lw=0.6
+        )
 
     plt.xlabel('MCS')
     plt.ylabel('Energy per spin')
     plt.title('Energy time series')
     plt.grid(True, alpha=0.3)
-    plt.legend()
+    plt.legend(frameon=True)
     plt.tight_layout()
 
     out_file = os.path.join(FIG_DIR, 'energy_timeseries_part2.pdf')
@@ -230,16 +238,24 @@ def plot_overlap_timeseries():
     temps = np.unique(T)
     chosen = choose_plot_temps(temps)
 
+    stride = 100
+
     plt.figure()
     for temp in chosen:
         mask = np.abs(T - temp) < 1e-12
-        plt.plot(mcs[mask], Q[mask] / N, label=f'T={temp:.2f}', alpha=0.9)
+        plt.plot(
+            mcs[mask][::stride],
+            (Q[mask] / N)[::stride],
+            label=f'T={temp:.2f}',
+            alpha=0.9,
+            lw=0.6
+        )
 
     plt.xlabel('MCS')
     plt.ylabel('q = Q/N')
     plt.title('Overlap time series')
     plt.grid(True, alpha=0.3)
-    plt.legend()
+    plt.legend(frameon=True)
     plt.tight_layout()
 
     out_file = os.path.join(FIG_DIR, 'overlap_timeseries_part2.pdf')
@@ -274,6 +290,32 @@ def plot_swap_rates():
     print(f'Generated {os.path.basename(out_file)}')
 
 
+# To generate the energy table:
+# Formatting help by co-pilot
+def print_energy_table():
+    if os.path.exists(BINNING_FILE):
+        Tmc, emc, d_emc = load_summary_from_binning(BINNING_FILE)
+    elif os.path.exists(SUMMARY_FILE):
+        Tmc, emc, d_emc = load_summary(SUMMARY_FILE)
+    else:
+        Tmc, emc, d_emc = mc_energy_vs_T_raw(TS_FILE)
+
+    print('\nEnergy per spin table')
+    print('T        E_MC/N        err(E/N)      E_exact        |diff|')
+    print('-' * 62)
+
+    if os.path.exists(FERDI_FILE):
+        Tf, ef = load_ferdi(FERDI_FILE)
+        for T, e_mc, de_mc in zip(Tmc, emc, d_emc):
+            idx = np.argmin(np.abs(Tf - T))
+            e_ex = ef[idx]
+            diff = abs(e_mc - e_ex)
+            print(f'{T:5.2f}   {e_mc: .10f}   {de_mc: .10f}   {e_ex: .10f}   {diff: .10f}')
+    else:
+        for T, e_mc, de_mc in zip(Tmc, emc, d_emc):
+            print(f'{T:5.2f}   {e_mc: .10f}   {de_mc: .10f}')
+
+
 if __name__ == '__main__':
     print('Generating plots...')
     plot_energy_comparison()
@@ -281,4 +323,5 @@ if __name__ == '__main__':
     plot_energy_timeseries()
     plot_overlap_timeseries()
     plot_swap_rates()
+    print_energy_table()
     print('Done!')

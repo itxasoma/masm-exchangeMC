@@ -7,4 +7,6 @@ fort*
 results/part3/
 logs/part3/
 inputs/part3_samples/
-results/timeseries_part2.datresults/*.dat
+results/timeseries_part2.dat
+
+results/
