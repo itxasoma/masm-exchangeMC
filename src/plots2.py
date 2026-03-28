@@ -29,6 +29,7 @@ SWAP_FILE = os.path.join(RESULTS_DIR, 'swap_stats_part2.dat')
 L = 20
 N = L * L
 DISCARD_MCS = 10000
+TS_PLOT_STRIDE = 100
 
 
 def load_mc_data(filename):
@@ -83,17 +84,18 @@ def load_summary_from_binning(filename, min_blocks=16, rel_tol=0.05):
         mask = np.abs(data[:, 1] - temp) < 1e-12
         rows = data[mask]
 
+        rows = rows[np.argsort(rows[:, 2])]
+
+        block_size = rows[:, 2]
         nblocks = rows[:, 3]
         mean_spin = rows[:, 5]
         err_spin = rows[:, 7]
 
         good = nblocks >= min_blocks
         if np.any(good):
+            block_size = block_size[good]
             mean_spin = mean_spin[good]
             err_spin = err_spin[good]
-        else:
-            mean_spin = rows[:, 5]
-            err_spin = rows[:, 7]
 
         idx_plateau = len(err_spin) - 1
 
@@ -119,7 +121,7 @@ def load_ferdi(filename):
     return T, e
 
 
-def choose_plot_temps(temps, targets=(1.0, 2.2, 3.0)):
+def choose_plot_temps(temps, targets=(2.0, 2.2, 2.6)):
     chosen = []
     for t in targets:
         tsel = temps[np.argmin(np.abs(temps - t))]
@@ -172,7 +174,8 @@ def plot_binning_curves():
         err_spin = data[mask, 7]
         plt.plot(block_size, err_spin, 'o-', label=f'T={temp:.2f}')
 
-    plt.xscale('log', base=2, subs=[1, 2, 4, 8, 16, 32])
+    plt.xscale('log')
+    plt.yscale('log')
     plt.xlabel('Block size')
     plt.ylabel('Binned error of energy per spin')
     plt.title('Binning analysis')
@@ -199,14 +202,12 @@ def plot_energy_timeseries():
     temps = np.unique(T)
     chosen = choose_plot_temps(temps)
 
-    stride = 100
-
     plt.figure()
     for temp in chosen:
         mask = np.abs(T - temp) < 1e-12
         plt.plot(
-            mcs[mask][::stride],
-            (E[mask] / N)[::stride],
+            mcs[mask][::TS_PLOT_STRIDE],
+            (E[mask] / N)[::TS_PLOT_STRIDE],
             label=f'T={temp:.2f}',
             alpha=0.9,
             lw=0.6
@@ -238,14 +239,12 @@ def plot_overlap_timeseries():
     temps = np.unique(T)
     chosen = choose_plot_temps(temps)
 
-    stride = 100
-
     plt.figure()
     for temp in chosen:
         mask = np.abs(T - temp) < 1e-12
         plt.plot(
-            mcs[mask][::stride],
-            (Q[mask] / N)[::stride],
+            mcs[mask][::TS_PLOT_STRIDE],
+            (Q[mask] / N)[::TS_PLOT_STRIDE],
             label=f'T={temp:.2f}',
             alpha=0.9,
             lw=0.6
@@ -290,8 +289,6 @@ def plot_swap_rates():
     print(f'Generated {os.path.basename(out_file)}')
 
 
-# To generate the energy table:
-# Formatting help by co-pilot
 def print_energy_table():
     if os.path.exists(BINNING_FILE):
         Tmc, emc, d_emc = load_summary_from_binning(BINNING_FILE)
