@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=part2_pt
-#SBATCH --output=part2_%j.out
-#SBATCH --error=part2_%j.err
+#SBATCH --job-name=exchMC_part2
+#SBATCH --output=exchMC_part2_%j.out
+#SBATCH --error=exchMC_part2_%j.err
 #SBATCH --time=04:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -11,9 +11,6 @@
 set -e
 
 echo "Job started on $(date)"
-
-module purge
-module load gcc
 
 mkdir -p ../results ../figures
 

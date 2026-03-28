@@ -8,6 +8,37 @@ Fortran implementation of the Exchange Monte Carlo (Parallel Tempering) algorith
 
 The simulation runs two independent replica families, usually labeled $a$ and $b$, each with $N_T$ temperatures between $T_{\min}$ and $T_{\max}$, and attempts exchanges between neighboring temperatures every `nsw` Monte Carlo sweeps. This is the standard parallel tempering idea: replicas move through temperature space so low-temperature configurations can escape metastable valleys more efficiently than in fixed-temperature Metropolis sampling. 
 
+## How to
+1. **Go to the** ```src``` **directory:**
+   ```bash
+   cd src
+   ```
+2. **Compile & run the simulation with plots:**
+   ```bash
+   make clean
+   make
+   ```
+    2.1. (Optional) initial test to check that the code is working:
+    ```bash
+        make run
+    ```
+    2.2. 2D Ising model simulation: run, binning and plots: 
+    To run localy, tune the nMCS in inputs/part2.in. Also run `ferdinand_matteo.f`for comparison
+       ```bash
+        make run2
+        make binning
+        gfortran -O2 -o ferdinand.x ferdinand/ferdinand_matteo.f 
+        make figures2
+        ```
+    To run in the cluster (used pirineus3.csuc.cat):
+    ```sbatch 2.run.sh
+    ```
+    2.3. 3D Ising model simulation
+    To run in the cluster (used pirineus3.csuc.cat):
+    ```sbatch 3.run.sh
+    ```
+
+
 ## Structure
 
 ```text
