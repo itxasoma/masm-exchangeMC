@@ -20,29 +20,29 @@ The simulation runs two independent replica families, usually labeled $a$ and $b
    ```
     2.1. (Optional) initial test to check that the code is working:
     ```bash
-        make run
+    make run
     ```
     2.2. 2D Ising model simulation: run, binning and plots:
    
     To run localy, tune the nMCS in inputs/part2.in. Also run `ferdinand_matteo.f`for comparison
    
-       ```bash
-        make run2
-        make binning
-        gfortran -O2 -o ferdinand.x ferdinand/ferdinand_matteo.f 
-        make figures2
-        ```
+   ```bash
+   make run2
+   make binning
+   gfortran -O2 -o ferdinand.x ferdinand/ferdinand_matteo.f 
+   make figures2
+   ```
    
     To run in the cluster (used pirineus3.csuc.cat):
-   
-    ```sbatch 2.run.sh
+   ```bash
+   sbatch 2.run.sh
     ```
     
     2.3. 3D Ising model simulation
    
     To run in the cluster (used pirineus3.csuc.cat):
-   
-    ```sbatch 3.run.sh
+   ```bash
+   sbatch 3.run.sh
     ```
     inputs/part3_samples/ and logs/part3 will be created containing the simulation's inputs, as well as results/part3 with the swap statistics and timeseries files.
 
@@ -97,8 +97,6 @@ The simulation runs two independent replica families, usually labeled $a$ and $b
 │   ├── main.f90
 │   ├── Makefile
 │   ├── parameters.f90
-│   ├── part2_2140025.err
-│   ├── part2_2140025.out
 │   ├── plots2.py
 │   ├── plots3.py
 │   ├── r1279
