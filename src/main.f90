@@ -143,7 +143,7 @@ program main
     print *, 'OK: all post-transient swap acceptance rates are >= 0.3'
   else
     print *, 'WARNING: some post-transient swap acceptance rates are < 0.3'
-    print *, 'Try increasing NT'
+    print *, 'Try increasing NT (or nMCS)'
   endif
 
   deallocate(spinsA, spinsB, EA, EB, repA, repB, tempA, tempB, accA, attA, accB, attB)
