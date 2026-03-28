@@ -2,8 +2,8 @@
 program main_binning
   use binning
   implicit none
-  integer, parameter:: L = 20
-  integer, parameter:: N = L * L
+  integer, parameter :: L = 20
+  integer, parameter :: N = L * L
   integer(kind=8), parameter:: DISCARD_MCS = 1000_8
   character(len=*), parameter:: TS_FILE      = '../results/timeseries_part2.dat'
   character(len=*), parameter:: SUMMARY_FILE = '../results/summary_part2.dat'
@@ -18,7 +18,6 @@ program main_binning
   double precision:: avg, sig
   double precision:: mean_e_spin, err_e_spin
   double precision:: mean_e, err_e
-  double precision:: max_sig_spin
   logical:: first_block
 
   unit_in = 20
@@ -27,7 +26,6 @@ program main_binning
 
   ! First pass: find max temperature index
   maxk = 0
-
   open(unit_in, file=TS_FILE, status='old')
   read(unit_in, '(A)', iostat=ios) line
   do
@@ -46,7 +44,6 @@ program main_binning
   fill = 0
   temps = 0.d0
 
-
   ! Second pass: count samples per temperature
   open(unit_in, file=TS_FILE, status='old')
   read(unit_in, '(A)', iostat=ios) line
@@ -64,7 +61,6 @@ program main_binning
   allocate(Eseries(nmax, maxk))
   Eseries = 0.d0
 
-
   ! Third pass: store energy per spin series
   open(unit_in, file=TS_FILE, status='old')
   read(unit_in, '(A)', iostat=ios) line
@@ -79,7 +75,6 @@ program main_binning
   enddo
   close(unit_in)
 
-
   ! Output files
   open(unit_sum, file=SUMMARY_FILE, status='replace')
   open(unit_bin, file=BIN_FILE, status='replace')
@@ -91,7 +86,6 @@ program main_binning
     if (counts(k) <= 1) cycle
 
     first_block = .true.
-    max_sig_spin = -1.d0
     best_block = 1
     mean_e_spin = 0.d0
     err_e_spin = 0.d0
@@ -107,13 +101,15 @@ program main_binning
 
       if (first_block) then
         mean_e_spin = avg
-        first_block = .false.
-      endif
-
-      if (sig > max_sig_spin) then
-        max_sig_spin = sig
         err_e_spin = sig
         best_block = block_size
+        first_block = .false.
+      else
+        ! Keep the largest error found
+        if (sig > err_e_spin) then
+          err_e_spin = sig
+          best_block = block_size
+        endif
       endif
 
       block_size = 2 * block_size
