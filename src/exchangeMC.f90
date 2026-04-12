@@ -181,9 +181,9 @@ contains
 ! Write all the statistics about swap attempts
   subroutine write_swap_stats(filename, accA, attA, accB, attB)
     implicit none
-    character(*), intent(in) :: filename
-    integer(kind=8), intent(in) :: accA(NT-1), attA(NT-1), accB(NT-1), attB(NT-1)
-    integer :: k, unit_sw
+    character(*), intent(in):: filename
+    integer(kind=8), intent(in):: accA(NT-1), attA(NT-1), accB(NT-1), attB(NT-1)
+    integer:: k, unit_sw
 
     unit_sw = 92
     open(unit_sw, file=trim(filename), status='replace')
