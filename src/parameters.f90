@@ -24,7 +24,6 @@ contains
     read(10,*) nMCS                 ! num of total MCsteps 
     read(10,*) seed                 ! rng seed
     read(10,'(A)') bond_mode        ! bond type: gaussian or ferro
-    close(10) 
     bond_mode = adjustl(trim(bond_mode)) 
 
     ! VS copilot suggestion: read temp_mode, if not given, keep default 'linear'
@@ -41,6 +40,7 @@ contains
       endif
     endif
 
+    close(10) 
   end subroutine read_input
 
 ! Initialize global variables and allocate T, beta lists

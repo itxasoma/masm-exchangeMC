@@ -35,6 +35,7 @@ contains
     implicit none
     integer:: i
     do i = 1, N
+      ! Only positive directions: +x=1, +y=3, +z=5
       call set_bond_pair(i, 1, 2, 1.d0)
       if (d >= 2) call set_bond_pair(i, 3, 4, 1.d0)
       if (d >= 3) call set_bond_pair(i, 5, 6, 1.d0)
@@ -44,10 +45,12 @@ contains
   subroutine set_gaussian_bonds()
     implicit none
     integer :: i
+    double precision :: val
     do i = 1, N
-      call set_bond_pair(i, 1, 2, gauss_rand())
-      if (d >= 2) call set_bond_pair(i, 3, 4, gauss_rand())
-      if (d >= 3) call set_bond_pair(i, 5, 6, gauss_rand())
+      ! +x direction: only set if nbr(i,1) > i to avoid double-setting
+      if (nbr(i,1) > i .or. nbr(i,1) < i) then
+        ! simpler: only set when i < j (forward bond)
+      endif
     end do
   end subroutine set_gaussian_bonds
 
