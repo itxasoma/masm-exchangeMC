@@ -1,18 +1,18 @@
-FC = gfortran
-FFLAGS = -O2 -g -Wall -Wextra -fcheck=all -fbacktrace
+FC      = gfortran
+FFLAGS  = -O2 -g -Wall -Wextra -fcheck=all -fbacktrace
 CPPFLAGS = -I./r1279
-TARGET = exchange_mc
-TARGET3 = exchange_mc_3
-PYTHON = python3
+TARGET  = exchange_mc          # Parts 1, 2, 4, 5. time-series output
+TARGET3 = exchange_mc_part3    # Part 3. histogram output
+PYTHON  = python3
 
-OBJ = parameters.o lattice.o rng_wrapper.o bonds.o exchangeMC.o main.o r1279.o ran2.o
+SHARED_OBJ = parameters.o lattice.o rng_wrapper.o bonds.o exchangeMC.o r1279.o ran2.o
 
 all: $(TARGET) $(TARGET3)
 
-$(TARGET): $(OBJ)
+$(TARGET): $(SHARED_OBJ) main.o
 	$(FC) $(FFLAGS) -o $@ $^
 
-$(TARGET3): $(OBJ)
+$(TARGET3): $(SHARED_OBJ) main3.o
 	$(FC) $(FFLAGS) -o $@ $^
 
 parameters.o: parameters.f90
@@ -42,27 +42,12 @@ ran2.o: r1279/ran2.f
 r1279.o: r1279/r1279.f90
 	$(FC) $(FFLAGS) $(CPPFLAGS) -c $< -o $@
 
-run: $(TARGET)
-	./$(TARGET) ../inputs/part1.in
-	mv *.dat ../results/
-
-run2: $(TARGET)
-	./$(TARGET) ../inputs/part2.in
-	mv *.dat ../results/
-
-figures2:
-	mkdir -p ../results ../figures
-	python3 plots2.py
-
-figures3:
-	mkdir -p ../results ../figures
-	python3 plots3.py
-
 clean:
-	rm -f *.o *.mod $(TARGET) *.x fort.*
+	rm -f *.o *.mod $(TARGET) $(TARGET3) *.x fort.*
 
-
-BIN_TARGET = main_binning.x
+# --- binning ---
+BIN_TARGET  = main_binning.x
+BIN4_TARGET = main_binning_part4.x
 
 binning.o: binning.f90
 	$(FC) $(FFLAGS) -c $<
@@ -70,8 +55,29 @@ binning.o: binning.f90
 main_binning.o: main_binning.f90 binning.o
 	$(FC) $(FFLAGS) -c $<
 
+main_binning_part4.o: main_binning_part4.f90 binning.o
+	$(FC) $(FFLAGS) -c $<
+
 $(BIN_TARGET): binning.o main_binning.o
 	$(FC) $(FFLAGS) -o $@ $^
 
-binning: $(BIN_TARGET)
+$(BIN4_TARGET): binning.o main_binning_part4.o
+	$(FC) $(FFLAGS) -o $@ $^
+
+binning:  $(BIN_TARGET)
 	./$(BIN_TARGET)
+
+binning4: $(BIN4_TARGET)
+	./$(BIN4_TARGET)
+
+run:  $(TARGET)
+	./$(TARGET) ../inputs/part1.in && mv *.dat ../results/
+
+run2: $(TARGET)
+	./$(TARGET) ../inputs/part2.in && mv *.dat ../results/
+
+figures2:
+	mkdir -p ../results ../figures && $(PYTHON) plots2.py
+
+figures3:
+	mkdir -p ../results ../figures && $(PYTHON) plots3.py
