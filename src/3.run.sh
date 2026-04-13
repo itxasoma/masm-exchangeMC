@@ -31,7 +31,7 @@ for s in $(seq 1 ${NSAMPLES}); do
   awk -v newseed="${SEED}" 'NR==9{$0=newseed} {print}' "${TEMPLATE}" > "${INFILE}"
 
   echo "Launching sample ${s}/${NSAMPLES}  seed=${SEED}  ->  ${INFILE}"
-  ./exchange_mc "${INFILE}" > "${LOGFILE}" 2>&1
+  ./exchange_mc_3 "${INFILE}" > "${LOGFILE}" 2>&1
 
   mv "histogram_${TAG}.dat" "../results/part3/"
   mv "swap_stats_${TAG}.dat" "../results/part3/"

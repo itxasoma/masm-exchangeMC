@@ -2,13 +2,17 @@ FC = gfortran
 FFLAGS = -O2 -g -Wall -Wextra -fcheck=all -fbacktrace
 CPPFLAGS = -I./r1279
 TARGET = exchange_mc
+TARGET3 = exchange_mc_3
 PYTHON = python3
 
 OBJ = parameters.o lattice.o rng_wrapper.o bonds.o exchangeMC.o main.o r1279.o ran2.o
 
-all: $(TARGET)
+all: $(TARGET) $(TARGET3)
 
 $(TARGET): $(OBJ)
+	$(FC) $(FFLAGS) -o $@ $^
+
+$(TARGET3): $(OBJ)
 	$(FC) $(FFLAGS) -o $@ $^
 
 parameters.o: parameters.f90
@@ -27,6 +31,9 @@ exchangeMC.o: exchangeMC.f90 parameters.o lattice.o bonds.o rng_wrapper.o
 	$(FC) $(FFLAGS) -c $<
 
 main.o: main.f90 parameters.o lattice.o bonds.o exchangeMC.o rng_wrapper.o
+	$(FC) $(FFLAGS) -c $<
+
+main3.o: main3.f90 parameters.o lattice.o bonds.o exchangeMC.o rng_wrapper.o
 	$(FC) $(FFLAGS) -c $<
 
 ran2.o: r1279/ran2.f
