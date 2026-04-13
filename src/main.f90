@@ -78,8 +78,8 @@ program main
   tsfile = 'timeseries_' // trim(tag) // '.dat'
   swfile = 'swap_stats_' // trim(tag) // '.dat'
 
-  open(10, file=trim(tsfile), status='replace')
-  write(10,'(A)') '# mcs  k  T(k)  Q(k)  Eavg(k)'
+  !open(10, file=trim(tsfile), status='replace')
+  !write(10,'(A)') '# mcs  k  T(k)  Q(k)  Eavg(k)'
 
   ! This means the first exchange step will try pairs: (1,2), (3,4), (5,6), ...
   parity = 1
@@ -142,7 +142,21 @@ program main
 
   enddo
 
+  !close(10)
+  
+  ! Write histogram file (small: NT * (2N+1) lines)
+  open(10, file='histogram_'//trim(tag)//'.dat', status='replace')
+    write(10,'(A)') '# k  T  Q  count  nmeas_total'
+    do k = 1, NT
+      do ibin = 1, 2*N+1
+        Qi = ibin - N - 1   ! recover Q from bin index
+        write(10,'(I4,1X,F12.6,1X,I8,1X,I12,1X,I12)') &
+            k, temp_list(k), Qi, hist(ibin,k), nmeas_total
+      enddo
+    enddo
   close(10)
+
+  deallocate(hist)
   call write_swap_stats(swfile, accA, attA, accB, attB)
 
   ! Print post-transient acceptance rates on screen
