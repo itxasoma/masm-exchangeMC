@@ -44,12 +44,24 @@ contains
 
   subroutine set_gaussian_bonds()
     implicit none
-    integer :: i
+    integer :: i, j
     double precision :: val
     do i = 1, N
-      ! +x direction: only set if nbr(i,1) > i to avoid double-setting
-      if (nbr(i,1) > i .or. nbr(i,1) < i) then
-        ! simpler: only set when i < j (forward bond)
+      j = nbr(i, 1)
+      val = gauss_rand()
+      Jij(i, 1) = val
+      Jij(j, 2) = val
+      if (d >= 2) then
+        j = nbr(i, 3)
+        val = gauss_rand()
+        Jij(i, 3) = val
+        Jij(j, 4) = val
+      endif
+      if (d >= 3) then
+        j = nbr(i, 5)
+        val = gauss_rand()
+        Jij(i, 5) = val
+        Jij(j, 6) = val
       endif
     end do
   end subroutine set_gaussian_bonds
