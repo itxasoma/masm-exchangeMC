@@ -9,3 +9,6 @@ Notes of things I am realizing:
 - in bonds.f90, the subroutine set_gaussian_bonds() was putting twice
     a random value of Jij to the same spin: first, for the i loop's neighbors
     and then, in the j loop, reassignin it.
+
+- I ran part 3 in the cluster and all time series files were much bigger than 30MB
+    (I am writing everything in those files). So, I'll attempt to compute the histogram now.
