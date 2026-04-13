@@ -1,5 +1,8 @@
 Notes of things I am realizing:
 
+- Binning subroutine: had some trouble creating it. Took the one we used in MoMo
+    and adapted it to work here.
+
 - It is better to change replica's temps instead of changing all spin configs.
     how to figure out how to exchange the replicas: keep track of:
     rep_at_temp(k) = k ! Which replica is currently sitting at temperature slot k?

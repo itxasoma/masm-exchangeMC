@@ -46,6 +46,15 @@ The simulation runs two independent replica families, usually labeled $a$ and $b
     ```
     inputs/part3_samples/ and logs/part3 will be created containing the simulation's inputs, as well as results/part3 with the swap statistics and timeseries files.
 
+3. **Install Python in a virtual environment:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip
+python3 -m pip install numpy
+python3 -m pip install matplotlib
+```
 
 ## Structure
 
