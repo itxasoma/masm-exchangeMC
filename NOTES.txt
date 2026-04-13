@@ -1,0 +1,11 @@
+Notes of things I am realizing:
+
+- It is better to change replica's temps instead of changing all spin configs.
+    how to figure out how to exchange the replicas: keep track of:
+    rep_at_temp(k) = k ! Which replica is currently sitting at temperature slot k?
+    temp_of_rep(k) = k ! At which temperature slot is replica r currently sitting?
+    so that I can later on compute q and other statistics.
+    
+- in bonds.f90, the subroutine set_gaussian_bonds() was putting twice
+    a random value of Jij to the same spin: first, for the i loop's neighbors
+    and then, in the j loop, reassignin it.
