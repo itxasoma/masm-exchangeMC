@@ -21,6 +21,13 @@ program main
   double precision:: rateA, rateB
   logical:: ok_all
 
+  ! HISTOGRAM (on the run)
+  integer, parameter:: NBINS = 2*64 + 1 ! 2N+1 bins for q = Q/N in [-1,1]
+  integer(kind=8), allocatable:: hist(:,:) ! hist(bin, k) for each temperature k
+  integer(kind=8):: hist_counts(1) ! dummy, reuse NT
+  integer(kind=8):: nmeas_eq, nmeas_total ! number of measurements after thermalization and total
+  integer:: ibin, Qi, i, rA, rB
+
   inputfile = '../inputs/part1.in'
   ! Suggested by co-pilot to allow input file as a command line argument
   call get_command_argument(1, inputfile)
@@ -38,6 +45,11 @@ program main
   call build_lattice()
   call alloc_bonds()
   call init_bonds()
+
+  ! Initialize histogram
+  allocate(hist(2*N+1, NT))
+  hist(:,:) = 0_8
+  nmeas_total = 0_8
 
   ! Allocate all the arrays for the spins, energies, maps, and statistics
   allocate(spinsA(N,NT), spinsB(N,NT))
@@ -112,9 +124,20 @@ program main
       endif
     endif
 
-    ! Write observables every nmeas steps
-    if (mod(mcs, nmeas) == 0_8) then
-      call measure_all(mcs, 10, spinsA, spinsB, EA, EB, repA, repB)
+    ! NOW: measure the overlap histogram for each temp
+    if ((mod(mcs, nmeas) == 0_8).and.(mcs > mcs_therm)) then
+      do k = 1, NT
+        rA = repA(k)
+        rB = repB(k)
+        Qi = 0
+        do i = 1, N
+          Qi = Qi + spinsA(i,rA) * spinsB(i,rB)
+        enddo
+        ! Qi from -N to +N. so map to bin index 1..2N+1
+        ibin = Qi + N + 1
+        hist(ibin, k) = hist(ibin, k) + 1_8
+      enddo
+      nmeas_total = nmeas_total + 1_8
     endif
 
   enddo
