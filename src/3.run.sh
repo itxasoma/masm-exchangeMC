@@ -28,13 +28,12 @@ for s in $(seq 1 ${NSAMPLES}); do
   INFILE="../inputs/part3_samples/${TAG}.in"
   LOGFILE="../logs/part3/${TAG}.log"
 
-  # Same template, but changing the seed line (line 9)
   awk -v newseed="${SEED}" 'NR==9{$0=newseed} {print}' "${TEMPLATE}" > "${INFILE}"
 
   echo "Launching sample ${s}/${NSAMPLES}  seed=${SEED}  ->  ${INFILE}"
   ./exchange_mc "${INFILE}" > "${LOGFILE}" 2>&1
 
-  mv "timeseries_${TAG}.dat" "../results/part3/"
+  mv "histogram_${TAG}.dat" "../results/part3/"
   mv "swap_stats_${TAG}.dat" "../results/part3/"
 done
 
