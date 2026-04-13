@@ -4,7 +4,6 @@
 *.o
 *.x
 fort*
-results/part3/swap_stats_*.dat
 logs/part3/
 results/timeseries_part2.dat
 results/5x10^6/
