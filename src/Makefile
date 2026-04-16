@@ -42,12 +42,28 @@ ran2.o: r1279/ran2.f
 r1279.o: r1279/r1279.f90
 	$(FC) $(FFLAGS) $(CPPFLAGS) -c $< -o $@
 
+
+run: $(TARGET)
+	./$(TARGET) ../inputs/part1.in
+	mv *.dat ../results/
+
+run2: $(TARGET)
+	./$(TARGET) ../inputs/part2.in
+	mv *.dat ../results/
+
+figures2:
+	mkdir -p ../results ../figures
+	$(PYTHON) plots2.py
+
+figures3:
+	mkdir -p ../results ../figures
+	$(PYTHON) plots3.py
+
 clean:
 	rm -f *.o *.mod $(TARGET) $(TARGET3) *.x fort.*
 
-# --- binning ---
-BIN_TARGET  = main_binning.x
-BIN4_TARGET = main_binning_part4.x
+
+BIN_TARGET = main_binning.x
 
 binning.o: binning.f90
 	$(FC) $(FFLAGS) -c $<
@@ -55,29 +71,8 @@ binning.o: binning.f90
 main_binning.o: main_binning.f90 binning.o
 	$(FC) $(FFLAGS) -c $<
 
-main_binning_part4.o: main_binning_part4.f90 binning.o
-	$(FC) $(FFLAGS) -c $<
-
 $(BIN_TARGET): binning.o main_binning.o
 	$(FC) $(FFLAGS) -o $@ $^
 
-$(BIN4_TARGET): binning.o main_binning_part4.o
-	$(FC) $(FFLAGS) -o $@ $^
-
-binning:  $(BIN_TARGET)
+binning: $(BIN_TARGET)
 	./$(BIN_TARGET)
-
-binning4: $(BIN4_TARGET)
-	./$(BIN4_TARGET)
-
-run:  $(TARGET)
-	./$(TARGET) ../inputs/part1.in && mv *.dat ../results/
-
-run2: $(TARGET)
-	./$(TARGET) ../inputs/part2.in && mv *.dat ../results/
-
-figures2:
-	mkdir -p ../results ../figures && $(PYTHON) plots2.py
-
-figures3:
-	mkdir -p ../results ../figures && $(PYTHON) plots3.py
