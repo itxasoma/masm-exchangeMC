@@ -19,3 +19,5 @@ NOTES of the process:
 - SO: I will rename main.f90 to main3.f90 for the 3rd part, because in that section, I only
     want the simulation to keep the histogram and not the timeseries. main.f90 will work for
     the rest of the parts (1 to 5).
+
+- Adapting the binning to part 4 and keep it working for the other parts
