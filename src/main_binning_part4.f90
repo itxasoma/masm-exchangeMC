@@ -10,126 +10,119 @@ program main_binning_part4
 
   ! Time intervals: [lo, hi) MCS
   integer, parameter:: NINT = 4
-  integer(kind=8), parameter:: INT_LO(NINT) = &
-       [10000_8,  30000_8, 100000_8,  300000_8]
-  integer(kind=8), parameter:: INT_HI(NINT) = &
-       [30000_8, 100000_8, 300000_8, 1000001_8]
+  integer(kind=8), parameter:: INT_LO(NINT) = [10000_8,  30000_8, 100000_8,  300000_8]
+  integer(kind=8), parameter:: INT_HI(NINT) = [30000_8, 100000_8, 300000_8, 1000001_8]
 
-  character(len=*), parameter:: TS_FILE  = '../results/timeseries_part4.dat'
-  character(len=*), parameter:: OUT_FILE = '../results/summary_part4.dat'
-
-  integer:: ios, maxk, k, ii, block_size, nblocks
+  character(len=256):: ts_file, out_file, line
+  integer:: ios, unit_in, unit_out
+  integer:: k, maxk, q, nmax, block_size, interval
   integer(kind=8):: mcs
-  integer:: Qi
-  double precision:: temp, Eavg
-  character(len=256):: line
-
-  ! Per-temperature, per-interval counters and data
-  integer, allocatable:: counts(:,:)   ! counts(k, interval)
-  integer, allocatable:: fill(:,:)
+  integer, allocatable:: counts(:,:), fill(:,:)
+  double precision:: temp, E
   double precision, allocatable:: temps(:)
-  double precision, allocatable:: Eseries(:,:,:)   ! (sample, k, interval)
-  double precision, allocatable:: Q2series(:,:,:)  ! (sample, k, interval)
+  double precision, allocatable:: q2series(:,:,:), eseries(:,:,:)
+  double precision:: avg_q2, err_q2, avg_e, err_e, best_err_q2, best_err_e
+  integer:: nargs
 
-  integer:: nmax
-  double precision:: avg_e, sig_e, avg_q2, sig_q2
-  double precision:: best_sig_e, best_sig_q2
-  integer:: unit_in, unit_out
+  nargs = command_argument_count()
+  if (nargs < 2) then
+    print *, 'Usage: ./main_binning_part4.x input_timeseries.dat output_summary.dat'
+    stop
+  endif
 
-  unit_in  = 20
+  call get_command_argument(1, ts_file)
+  call get_command_argument(2, out_file)
+
+  unit_in = 20
   unit_out = 30
 
-  ! --- Pass 1: find maxk and count samples per (k, interval) ---
+  ! Pass 1: find max temperature index
   maxk = 0
-  open(unit_in, file=TS_FILE, status='old')
-  read(unit_in,'(A)', iostat=ios) line   ! skip header
+  open(unit_in, file=trim(ts_file), status='old')
+  read(unit_in, '(A)', iostat=ios) line
   do
-    read(unit_in, *, iostat=ios) mcs, k, temp, Qi, Eavg
+    read(unit_in, *, iostat=ios) mcs, k, temp, q, E
     if (ios /= 0) exit
     if (k > maxk) maxk = k
-  enddo
+  end do
   close(unit_in)
 
-  allocate(counts(maxk, NINT), fill(maxk, NINT), temps(maxk))
-  counts = 0;  fill = 0;  temps = 0.d0
+  if (maxk <= 0) stop 'No data found in input file.'
 
-  open(unit_in, file=TS_FILE, status='old')
-  read(unit_in,'(A)', iostat=ios) line
+  allocate(counts(maxk, NINT), fill(maxk, NINT), temps(maxk))
+  counts = 0
+  fill = 0
+  temps = 0.d0
+
+  ! Pass 2: count samples in each interval for each temperature
+  open(unit_in, file=trim(ts_file), status='old')
+  read(unit_in, '(A)', iostat=ios) line
   do
-    read(unit_in, *, iostat=ios) mcs, k, temp, Qi, Eavg
+    read(unit_in, *, iostat=ios) mcs, k, temp, q, E
     if (ios /= 0) exit
     temps(k) = temp
-    do ii = 1, NINT
-      if (mcs >= INT_LO(ii) .and. mcs < INT_HI(ii)) then
-        counts(k, ii) = counts(k, ii) + 1
+    do interval = 1, NINT
+      if (mcs >= TLOW(interval) .and. mcs < THIGH(interval)) then
+        counts(k, interval) = counts(k, interval) + 1
       endif
-    enddo
-  enddo
+    end do
+  end do
   close(unit_in)
 
   nmax = maxval(counts)
-  if (nmax < 2) stop 'Not enough data in time intervals'
+  if (nmax <= 1) stop 'Not enough samples in selected intervals.'
 
-  allocate(Eseries(nmax, maxk, NINT))
-  allocate(Q2series(nmax, maxk, NINT))
-  Eseries  = 0.d0
-  Q2series = 0.d0
+  allocate(q2series(nmax, maxk, NINT))
+  allocate(eseries(nmax, maxk, NINT))
+  q2series = 0.d0
+  eseries = 0.d0
 
-  ! --- Pass 2: store E/N and q^2 per interval ---
-  open(unit_in, file=TS_FILE, status='old')
-  read(unit_in,'(A)', iostat=ios) line
+  ! Pass 3: store q^2 and E/N
+  open(unit_in, file=trim(ts_file), status='old')
+  read(unit_in, '(A)', iostat=ios) line
   do
-    read(unit_in, *, iostat=ios) mcs, k, temp, Qi, Eavg
+    read(unit_in, *, iostat=ios) mcs, k, temp, q, E
     if (ios /= 0) exit
-    do ii = 1, NINT
-      if (mcs >= INT_LO(ii) .and. mcs < INT_HI(ii)) then
-        fill(k, ii) = fill(k, ii) + 1
-        Eseries(fill(k,ii),  k, ii) = Eavg / dble(N)
-        Q2series(fill(k,ii), k, ii) = (dble(Qi) / dble(N))**2
+    do interval = 1, NINT
+      if (mcs >= TLOW(interval) .and. mcs < THIGH(interval)) then
+        fill(k, interval) = fill(k, interval) + 1
+        q2series(fill(k, interval), k, interval) = (dble(q) / dble(N))**2
+        eseries(fill(k, interval), k, interval)  = E / dble(N)
       endif
-    enddo
-  enddo
+    end do
+  end do
   close(unit_in)
 
-  ! --- Output ---
-  open(unit_out, file=OUT_FILE, status='replace')
-  write(unit_out,'(A)') &
-    '# interval  k  T  ndata  meanE  errE  meanQ2  errQ2'
+  open(unit_out, file=trim(out_file), status='replace')
+  write(unit_out,'(A)') '# interval k T ndata mean_q2 err_q2 mean_e_per_spin err_e_per_spin'
 
-  do ii = 1, NINT
+  do interval = 1, NINT
     do k = 1, maxk
-      if (counts(k, ii) < 2) cycle
+      if (counts(k, interval) <= 1) cycle
 
-      ! Binning for E
-      best_sig_e = 0.d0
+      avg_q2 = sum(q2series(1:counts(k, interval), k, interval)) / dble(counts(k, interval))
+      avg_e  = sum(eseries(1:counts(k, interval), k, interval)) / dble(counts(k, interval))
+
+      best_err_q2 = 0.d0
+      best_err_e  = 0.d0
+
       block_size = 1
-      do while (counts(k,ii) / block_size >= 2)
-        nblocks = counts(k,ii) / block_size
-        call average_block(Eseries(1:counts(k,ii), k, ii), block_size, avg_e, sig_e)
-        if (sig_e > best_sig_e) best_sig_e = sig_e
-        block_size = 2 * block_size
-      enddo
+      do while (counts(k, interval) / block_size >= 2)
+        call average_block(q2series(1:counts(k, interval), k, interval), block_size, avg_q2, err_q2)
+        call average_block(eseries(1:counts(k, interval), k, interval), block_size, avg_e, err_e)
 
-      ! Binning for Q2
-      avg_e = sum(Eseries(1:counts(k,ii), k, ii)) / dble(counts(k,ii))
-      avg_q2 = sum(Q2series(1:counts(k,ii), k, ii)) / dble(counts(k,ii))
-      best_sig_q2 = 0.d0
-      block_size = 1
-      do while (counts(k,ii) / block_size >= 2)
-        nblocks = counts(k,ii) / block_size
-        call average_block(Q2series(1:counts(k,ii), k, ii), block_size, avg_q2, sig_q2)
-        if (sig_q2 > best_sig_q2) best_sig_q2 = sig_q2
-        block_size = 2 * block_size
-      enddo
+        if (err_q2 > best_err_q2) best_err_q2 = err_q2
+        if (err_e  > best_err_e ) best_err_e  = err_e
 
-      write(unit_out,'(I2,1X,I4,1X,F10.5,1X,I8,4(1X,F16.8))') &
-           ii, k, temps(k), counts(k,ii), avg_e, best_sig_e, avg_q2, best_sig_q2
-    enddo
-  enddo
+        block_size = 2 * block_size
+      end do
+
+      write(unit_out,'(I3,1X,I4,1X,F12.6,1X,I8,1X,F18.10,1X,F18.10,1X,F18.10,1X,F18.10)') &
+           interval, k, temps(k), counts(k, interval), avg_q2, best_err_q2, avg_e, best_err_e
+    end do
+  end do
 
   close(unit_out)
-  print *, 'Written: ', OUT_FILE
-
-  deallocate(counts, fill, temps, Eseries, Q2series)
+  deallocate(counts, fill, temps, q2series, eseries)
 
 end program main_binning_part4

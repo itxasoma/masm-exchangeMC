@@ -59,6 +59,10 @@ figures3:
 	mkdir -p ../results ../figures
 	$(PYTHON) plots3.py
 
+figures4:
+	mkdir -p ../figures
+	$(PYTHON) plots4.py
+
 clean:
 	rm -f *.o *.mod $(TARGET) $(TARGET3) *.x fort.*
 
@@ -76,3 +80,18 @@ $(BIN_TARGET): binning.o main_binning.o
 
 binning: $(BIN_TARGET)
 	./$(BIN_TARGET)
+	
+
+BIN4_TARGET = main_binning_part4.x
+
+main_binning_part4.o: main_binning_part4.f90 binning.o
+	$(FC) $(FFLAGS) -c $<
+
+$(BIN4_TARGET): binning.o main_binning_part4.o
+	$(FC) $(FFLAGS) -o $@ $^
+
+binning4: $(BIN4_TARGET)
+	@for f in ../results/part4/timeseries_part4_s*.dat; do \
+	  tag=$$(basename $$f .dat | sed 's/timeseries_//'); \
+	  ./$(BIN4_TARGET) $$f ../results/part4/summary_$${tag}.dat; \
+	done
