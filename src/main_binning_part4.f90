@@ -62,7 +62,7 @@ program main_binning_part4
     if (ios /= 0) exit
     temps(k) = temp
     do interval = 1, NINT
-      if (mcs >= TLOW(interval) .and. mcs < THIGH(interval)) then
+      if (mcs >= INT_LO(interval) .and. mcs < INT_HI(interval)) then
         counts(k, interval) = counts(k, interval) + 1
       endif
     end do
@@ -84,7 +84,7 @@ program main_binning_part4
     read(unit_in, *, iostat=ios) mcs, k, temp, q, E
     if (ios /= 0) exit
     do interval = 1, NINT
-      if (mcs >= TLOW(interval) .and. mcs < THIGH(interval)) then
+      if (mcs >= INT_LO(interval) .and. mcs < INT_HI(interval)) then
         fill(k, interval) = fill(k, interval) + 1
         q2series(fill(k, interval), k, interval) = (dble(q) / dble(N))**2
         eseries(fill(k, interval), k, interval)  = E / dble(N)
