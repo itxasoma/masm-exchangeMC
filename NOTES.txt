@@ -20,4 +20,11 @@ NOTES of the process:
     want the simulation to keep the histogram and not the timeseries. main.f90 will work for
     the rest of the parts (1 to 5).
 
-- Adapting the binning to part 4 and keep it working for the other parts.
+- Adapting the binning to part 4 and keep it working for the other parts. So, I finally chose
+    to create new main binning, and mains for each part. Now the src/ is a bit chaos: should
+    write instructions on the readme
+
+- Compressed the timeseries*.dat files, because github has a max update of 100MB I think.
+
+- Part 5 histograms look good! Make sense for temperature. The analysis of the different
+    part 4 outputs has to be done carefuly (to do).

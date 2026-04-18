@@ -153,7 +153,7 @@ def plot_energy_comparison():
     plt.legend()
     plt.tight_layout()
 
-    out_file = os.path.join(FIG_DIR, 'energy_vs_temperature_part2.pdf')
+    out_file = os.path.join(FIG_DIR, 'part2_energy_vs_temperature.pdf')
     plt.savefig(out_file)
     plt.close()
     print(f'Generated {os.path.basename(out_file)}')
@@ -183,7 +183,7 @@ def plot_binning_curves():
     plt.legend()
     plt.tight_layout()
 
-    out_file = os.path.join(FIG_DIR, 'binning_energy_part2.pdf')
+    out_file = os.path.join(FIG_DIR, 'part2_binning_energy.pdf')
     plt.savefig(out_file)
     plt.close()
     print(f'Generated {os.path.basename(out_file)}')
@@ -220,7 +220,7 @@ def plot_energy_timeseries():
     plt.legend(frameon=True)
     plt.tight_layout()
 
-    out_file = os.path.join(FIG_DIR, 'energy_timeseries_part2.pdf')
+    out_file = os.path.join(FIG_DIR, 'part2_energy_timeseries.pdf')
     plt.savefig(out_file)
     plt.close()
     print(f'Generated {os.path.basename(out_file)}')
@@ -257,7 +257,7 @@ def plot_overlap_timeseries():
     plt.legend(frameon=True)
     plt.tight_layout()
 
-    out_file = os.path.join(FIG_DIR, 'overlap_timeseries_part2.pdf')
+    out_file = os.path.join(FIG_DIR, 'part2_overlap_timeseries.pdf')
     plt.savefig(out_file)
     plt.close()
     print(f'Generated {os.path.basename(out_file)}')
@@ -283,7 +283,7 @@ def plot_swap_rates():
     plt.legend()
     plt.tight_layout()
 
-    out_file = os.path.join(FIG_DIR, 'swap_rates_part2.pdf')
+    out_file = os.path.join(FIG_DIR, 'part2_swap_rates.pdf')
     plt.savefig(out_file)
     plt.close()
     print(f'Generated {os.path.basename(out_file)}')
