@@ -4,7 +4,7 @@
 *.o
 *.x
 fort*
-logs/part3/
+inputs/logs/part3/
 results/timeseries_part2.dat
 results/5x10^6/
 

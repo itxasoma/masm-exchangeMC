@@ -46,7 +46,7 @@ interval_labels = {
     4: r"$3\times10^5 \leq t < 10^6$",
 }
 
-plt.figure(figsize=(8,6))
+plt.figure()
 for interval, grp in avg.groupby("interval"):
     plt.plot(grp["T"], grp["err_q2"], marker="o", label=interval_labels.get(interval, f"interval {interval}"))
 plt.xlabel("Temperature T")
@@ -57,7 +57,7 @@ plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig("../figures/part4_err_q2_vs_T.pdf")
 
-plt.figure(figsize=(8,6))
+plt.figure()
 for interval, grp in avg.groupby("interval"):
     plt.plot(grp["T"], grp["err_e"], marker="o", label=interval_labels.get(interval, f"interval {interval}"))
 plt.xlabel("Temperature T")
