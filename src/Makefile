@@ -97,7 +97,7 @@ clean:
 	rm -f *.o *.mod $(TARGET) $(TARGET3) $(TARGET6) *.x fort.*
 
 
-# Binnings
+# Binning part 2
 BIN_TARGET = main_binning.x
 
 binning.o: binning.f90
@@ -111,8 +111,9 @@ $(BIN_TARGET): binning.o main_binning.o
 
 bin2: $(BIN_TARGET)
 	./$(BIN_TARGET)
-	
 
+
+# Binning part 4
 BIN4_TARGET = main_binning_part4.x
 
 main_binning_part4.o: main_binning_part4.f90 binning.o
@@ -130,6 +131,9 @@ bin4: $(BIN4_TARGET)
 
 # Autocorrelation
 AUTOCORR_TARGET = main_autocorr_part7.x
+N_SAMPLES       = 5
+MAXLAG          = 200
+T_LOW           = 0.2
 
 main_autocorr_part7.o: main_autocorr_part7.f90
 	$(FC) $(FFLAGS) -c $<
@@ -137,4 +141,30 @@ main_autocorr_part7.o: main_autocorr_part7.f90
 $(AUTOCORR_TARGET): main_autocorr_part7.o
 	$(FC) $(FFLAGS) -o $@ $^
 
+# Co-pilot suggested a more complicated loop, but this is simpler and works fine. 
+# It also checks if the input files exist before running the autocorrelation, and prints a warning if not.
+# Run autocorrelation on all PT (part4) and Metropolis (part6) samples
 autocorr7: $(AUTOCORR_TARGET)
+	@mkdir -p ../results/part7
+	@echo '=== Autocorrelation: Parallel Tempering (part 4) ==='
+	@for s in $$(seq -f '%02g' 1 $(N_SAMPLES)); do \
+	  f=../results/part4/timeseries_part4_s$${s}.dat; \
+	  if [ ! -f "$$f" ]; then echo "  WARNING: $$f not found, skipping."; continue; fi; \
+	  echo "  PT sample s$$s --- q"; \
+	  ./$(AUTOCORR_TARGET) $$f ../results/part7/autocorr_q_pt_s$${s}.dat q $(MAXLAG) $(T_LOW); \
+	  echo "  PT sample s$$s --- e"; \
+	  ./$(AUTOCORR_TARGET) $$f ../results/part7/autocorr_e_pt_s$${s}.dat e $(MAXLAG) $(T_LOW); \
+	done
+	@echo '=== Autocorrelation: Metropolis (part 6) ==='
+	@for s in $$(seq -f '%02g' 1 $(N_SAMPLES)); do \
+	  f=../results/part6/timeseries_part6_s$${s}.dat; \
+	  if [ ! -f "$$f" ]; then echo "  WARNING: $$f not found, skipping."; continue; fi; \
+	  echo "  Metropolis sample s$$s --- q"; \
+	  ./$(AUTOCORR_TARGET) $$f ../results/part7/autocorr_q_met_s$${s}.dat q $(MAXLAG); \
+	  echo "  Metropolis sample s$$s --- e"; \
+	  ./$(AUTOCORR_TARGET) $$f ../results/part7/autocorr_e_met_s$${s}.dat e $(MAXLAG); \
+	done
+	@echo '=== All autocorrelation files written to ../results/part7/ ==='
+
+# Convenience: compile + run autocorrelations + plot
+part7: autocorr7 figs7

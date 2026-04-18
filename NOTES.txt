@@ -28,3 +28,8 @@ NOTES of the process:
 
 - Part 5 histograms look good! Make sense for temperature. The analysis of the different
     part 4 outputs has to be done carefuly (to do).
+
+- Building the autocorrelation file/folder structure. The autocorrelation main needs to be
+    applied to parts 4 and 6. That was tricky. Accepted co-pilot suggestion to incorporate
+    the execution into the Makefile, so there's no need to execute the main manually
+    for every results *.dat file. 
