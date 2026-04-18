@@ -51,18 +51,18 @@ r1279.o: r1279/r1279.f90
 
 # To run the code:
 run: $(TARGET)
-	./$(TARGET) ../inputs/part1.in
 	mkdir -p ../results/part1
+	./$(TARGET) ../inputs/part1.in
 	mv *.dat ../results/part1/
 
 run2: $(TARGET)
-	./$(TARGET) ../inputs/part2.in
-	mkdir -p ../results/part2
-	mv *.dat ../results/part2/
+    mkdir -p ../results/part2
+    ./$(TARGET) ../inputs/part2.in
+    mv *.dat ../results/part2/
 
 run3: $(TARGET3)
-	./$(TARGET3) ../inputs/part3.in
 	mkdir -p ../results/part3
+	./$(TARGET3) ../inputs/part3.in
 	mv *.dat ../results/part3/
 
 run6: $(TARGET6)

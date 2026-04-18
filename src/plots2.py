@@ -21,7 +21,7 @@ if os.path.exists(style_file):
 os.makedirs(FIG_DIR, exist_ok=True)
 
 TS_FILE = os.path.join(RESULTS_DIR, 'timeseries_part2.dat')
-FERDI_FILE = os.path.join(RESULTS_DIR, 'ferdi.D')
+FERDI_FILE  = os.path.join(BASE_DIR, '../results/ferdi.D')  # stays at root
 SUMMARY_FILE = os.path.join(RESULTS_DIR, 'summary_part2.dat')
 BINNING_FILE = os.path.join(RESULTS_DIR, 'binning_part2.dat')
 SWAP_FILE = os.path.join(RESULTS_DIR, 'swap_stats_part2.dat')

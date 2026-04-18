@@ -5,9 +5,9 @@ program main_binning
   integer, parameter :: L = 20
   integer, parameter :: N = L * L
   integer(kind=8), parameter:: DISCARD_MCS = 1000_8
-  character(len=*), parameter:: TS_FILE      = '../results/timeseries_part2.dat'
-  character(len=*), parameter:: SUMMARY_FILE = '../results/summary_part2.dat'
-  character(len=*), parameter:: BIN_FILE     = '../results/binning_part2.dat'
+  character(len=*), parameter:: TS_FILE      = '../results/part2/timeseries_part2.dat'
+  character(len=*), parameter:: SUMMARY_FILE = '../results/part2/summary_part2.dat'
+  character(len=*), parameter:: BIN_FILE     = '../results/part2/binning_part2.dat'
   character(len=256):: line
   integer:: ios, unit_in, unit_sum, unit_bin
   integer:: k, maxk, q, nmax, nblocks, block_size, best_block
