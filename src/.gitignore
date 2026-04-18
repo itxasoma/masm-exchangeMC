@@ -1,8 +1,15 @@
 results/*.dat
+results/part1/timeseries_part1.dat
+results/part2/timeseries_part2_s*.dat
+results/part3/timeseries_part3_s*.dat
 results/part4/timeseries_part4_s*.dat
+results/part6/timeseries_part6_s*.dat
+
 
 exchange_mc
 exchange_mc_part3
+exchange_mc_part4
+exchange_mc_part6
 
 src/*.o
 src/*.mod
