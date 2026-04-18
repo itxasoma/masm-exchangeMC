@@ -51,17 +51,21 @@ run2: $(TARGET)
 	./$(TARGET) ../inputs/part2.in
 	mv *.dat ../results/
 
-figures2:
+figs2:
 	mkdir -p ../results ../figures
 	$(PYTHON) plots2.py
 
-figures3:
+figs3:
 	mkdir -p ../results ../figures
 	$(PYTHON) plots3.py
 
-figures4:
+figs4:
 	mkdir -p ../figures
 	$(PYTHON) plots4.py
+
+figs5:
+	mkdir -p ../figures
+	$(PYTHON) plots5.py
 
 clean:
 	rm -f *.o *.mod $(TARGET) $(TARGET3) *.x fort.*
@@ -78,7 +82,7 @@ main_binning.o: main_binning.f90 binning.o
 $(BIN_TARGET): binning.o main_binning.o
 	$(FC) $(FFLAGS) -o $@ $^
 
-binning: $(BIN_TARGET)
+bin2: $(BIN_TARGET)
 	./$(BIN_TARGET)
 	
 
@@ -90,7 +94,7 @@ main_binning_part4.o: main_binning_part4.f90 binning.o
 $(BIN4_TARGET): binning.o main_binning_part4.o
 	$(FC) $(FFLAGS) -o $@ $^
 
-binning4: $(BIN4_TARGET)
+bin4: $(BIN4_TARGET)
 	@for f in ../results/part4/timeseries_part4_s*.dat; do \
 	  tag=$$(basename $$f .dat | sed 's/timeseries_//'); \
 	  ./$(BIN4_TARGET) $$f ../results/part4/summary_$${tag}.dat; \

@@ -1,4 +1,5 @@
 results/*.dat
+results/part4/timeseries_part4_s*.dat
 
 exchange_mc
 exchange_mc_part3
