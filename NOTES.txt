@@ -3,7 +3,7 @@ NOTES of the process:
 - Binning subroutine: had some trouble creating it. Took the one we used in MoMo
     and adapted it to work here.
 
-- It is better to change replica's temps instead of changing all spin configs.
+- It is better to change replicas' temps instead of changing all spin configs.
     how to figure out how to exchange the replicas: keep track of:
     rep_at_temp(k) = k ! Which replica is currently sitting at temperature slot k?
     temp_of_rep(k) = k ! At which temperature slot is replica r currently sitting?
@@ -11,25 +11,35 @@ NOTES of the process:
     
 - in bonds.f90, the subroutine set_gaussian_bonds() was putting twice
     a random value of Jij to the same spin: first, for the i loop's neighbors
-    and then, in the j loop, reassignin it.
+    and then, in the j loop, reassigning it.
 
-- I ran part 3 in the cluster and all time series files were much bigger than 30MB
+- I ran part 3 in the cluster, and all time series files were much bigger than 30MB
     (I am writing everything in those files). So, I'll attempt to compute the histogram now.
+
+- Keeping the timeseries with a small size was an issue to attend to. Compressing the files was
+    an option, but in some cases (as in part 3), I chose to compute the histograms directly.
+    I later realized that writing fewer steps ot this timeseries could have been the answer to
+    this spacing problem. Nevertheless, for the first approach, it was a good idea to get more 
+    information about the timeseries.
 
 - SO: I will rename main.f90 to main3.f90 for the 3rd part, because in that section, I only
     want the simulation to keep the histogram and not the timeseries. main.f90 will work for
     the rest of the parts (1 to 5).
 
-- Adapting the binning to part 4 and keep it working for the other parts. So, I finally chose
-    to create new main binning, and mains for each part. Now the src/ is a bit chaos: should
-    write instructions on the readme
+- Adapting the binning to part 4 and keeping it working for the other parts. So, I finally chose
+    to create a new main binning and mains for each part. Now the src/ is a bit chaotic: should
+    write instructions in the readme.
 
 - Compressed the timeseries*.dat files, because github has a max update of 100MB I think.
 
-- Part 5 histograms look good! Make sense for temperature. The analysis of the different
-    part 4 outputs has to be done carefuly (to do).
+- Part 5 histograms look good! Makes sense for temperature. The analysis of the different
+    part 4 outputs has to be done carefully (to do). See reference (Katzgraber)
 
 - Building the autocorrelation file/folder structure. The autocorrelation main needs to be
     applied to parts 4 and 6. That was tricky. Accepted co-pilot suggestion to incorporate
     the execution into the Makefile, so there's no need to execute the main manually
     for every results *.dat file. 
+
+- AI use is explicitly shown in the code. It has been used as co-pilot suggestion for debugging
+    and improving functions for Fortran and Python (plots). I declare my responsibility for 
+    self-reasoning and not delegating that to the AI models. 

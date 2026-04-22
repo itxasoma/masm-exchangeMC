@@ -56,9 +56,9 @@ run: $(TARGET)
 	mv *.dat ../results/part1/
 
 run2: $(TARGET)
-    mkdir -p ../results/part2
-    ./$(TARGET) ../inputs/part2.in
-    mv *.dat ../results/part2/
+	mkdir -p ../results/part2
+	./$(TARGET) ../inputs/part2.in
+	mv *.dat ../results/part2/
 
 run3: $(TARGET3)
 	mkdir -p ../results/part3
