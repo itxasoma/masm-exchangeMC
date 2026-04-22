@@ -40,7 +40,7 @@ Part 6 (Metropolis at T=0.2, cluster):
 
 Part 7 (autocorrelation times):
 
-    make part7        # compiles, runs Fortran autocorr on parts 4+6, plots
+    make part7 && make figs7        # compiles, runs Fortran autocorr on parts 4+6, plots
 
 ## Reproduce plots from stored results
 
