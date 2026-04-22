@@ -2,7 +2,7 @@ import glob
 import os
 import re
 import numpy as np
-import pandas as pd
+import pandas as pd # Added pandas for data handling
 import matplotlib.pyplot as plt
 
 # Parameters

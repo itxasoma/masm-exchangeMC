@@ -1,3 +1,8 @@
+! Standalone post-processing tool: reads a timeseries .dat file
+! and computes the normalized autocorrelation function rho(lag)
+! and the integrated autocorrelation time tau_int.
+! Does not use the simulation modules (no lattice, no bonds).
+
 program main_autocorr_part7
   implicit none
   character(len=256):: infile, outfile, observable, arg

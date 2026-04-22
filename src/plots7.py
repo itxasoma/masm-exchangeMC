@@ -1,9 +1,10 @@
 import glob
 import os
 import numpy as np
-import pandas as pd
+import pandas as pd # Added pandas for data handling
 import matplotlib.pyplot as plt
 
+# Same as always
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 style_file = os.path.join(BASE_DIR, 'lib/science.mplstyle')
 if os.path.exists(style_file):
