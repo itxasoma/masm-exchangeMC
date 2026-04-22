@@ -44,6 +44,10 @@ Part 7 (autocorrelation times):
 
 ## Reproduce plots from stored results
 
+Computed results for all parts are stored in results/part*/
+(timeseries as .zip, histograms and output files uncompressed).
+No cluster access is needed to reproduce the figures. Download or clone this repository for downloading all `.dat` files.
+
 Heavy timeseries are stored as .zip in results/part*/. Unzip before plotting:
 
     unzip results/part2/timeseries_part2.dat.zip -d results/part2/
