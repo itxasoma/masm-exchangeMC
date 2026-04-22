@@ -1,8 +1,9 @@
+# Analysis of q^2 convergence data from part 6, using pandas
 import glob
 import os
 import re
 import numpy as np
-import pandas as pd # Added pandas for data handling
+import pandas as pd 
 import matplotlib.pyplot as plt
 
 # Parameters

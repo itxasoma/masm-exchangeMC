@@ -1,7 +1,8 @@
+# Analysis of autocorrelation data from part 7, using pandas
 import glob
 import os
 import numpy as np
-import pandas as pd # Added pandas for data handling
+import pandas as pd 
 import matplotlib.pyplot as plt
 
 # Same as always
